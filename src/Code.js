@@ -117,6 +117,11 @@ function rangeClear(range) {
 function copyAndAppend() {
   const sheet = SpreadsheetApp.getActiveSheet()
   const selection = sheet.getActiveRange()
+
+  if (selection.getNumRows() > 1) {
+    throw new Error(`${packageName} doesn't work on multiple rows!`)
+  }
+
   const selectionRow = selection.getRow()
   const selectionColumn = selection.getColumn()
 
@@ -140,25 +145,28 @@ function copyAndAppend() {
  * Copies formulas from a single row of cells down until the last row
  */
 function copyAndReplaceAll() {
-  const currentRange = SpreadsheetApp.getActiveRange()
+  const sheet = SpreadsheetApp.getActiveSheet()
+  const selection = sheet.getActiveRange()
 
-  if (currentRange.getNumRows() > 1) {
+  if (selection.getNumRows() > 1) {
     throw new Error(`${packageName} doesn't work on multiple rows!`)
   }
 
-  const currentSheet = SpreadsheetApp.getActiveSheet()
-  const sheetMaxRows = currentSheet.getLastRow()
-  // const formulas = currentRange.getFormulas()[0]
+  const selectionRow = selection.getRow()
+  const selectionColumn = selection.getColumn()
 
-  if (!rangeAllCellsHaveFormulas(currentRange)) {
-    throw new Error('Not all selected cells have formulas!')
+  const rangesToCopy = rangeMapFormulas(selection, formula => formula !== "")
+  const rowEnd = sheet.getLastRow()
+  const rowStart = selection.getRow() + 1
+  const numRows = rowEnd - rowStart + 1
+
+  for (let i = 0; i < rangesToCopy.length; i++) {
+    const rangeToCopy = rangesToCopy[i]
+    const column = rangeToCopy.getColumn()
+    const rangeToPasteFormulas = sheet.getRange(rowStart, column, numRows)
+    rangeToCopy.copyTo(rangeToPasteFormulas)
   }
 
-  const targetRange = currentSheet.getRange(currentRange.getRow(), currentRange.getColumn(), sheetMaxRows, currentRange.getNumColumns())
-  currentRange.copyTo(targetRange)
-  const targetValuesRange = targetRange.offset(1, 0)
-  const values = targetValuesRange.getValues()
-  targetValuesRange.setValues(values)
-  targetValuesRange.setFontColor(null)
-  targetValuesRange.setFontStyle(null)
+  const rangeToClear = sheet.getRange(rowStart, selectionColumn, numRows, selection.getNumColumns())
+  rangeClear(rangeToClear)
 }
