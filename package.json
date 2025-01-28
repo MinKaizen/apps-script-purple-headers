@@ -1,0 +1,17 @@
+{
+  "name": "purple-headers",
+  "version": "1.0.0",
+  "description": "Copy formulas from headers down to the last row",
+  "main": "index.js",
+  "scripts": {
+    "open": "node_modules/.bin/clasp -P src/ open",
+    "push": "node_modules/.bin/clasp -P src/ push",
+    "pull": "node_modules/.bin/clasp -P src/ pull"
+  },
+  "keywords": [],
+  "author": "Martin Cao",
+  "license": "MIT",
+  "devDependencies": {
+    "@google/clasp": "^2.5.0"
+  }
+}
