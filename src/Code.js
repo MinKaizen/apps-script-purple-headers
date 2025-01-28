@@ -3,7 +3,7 @@ const packageName = 'Purple Headers'
 function onOpen() {
   const ui = SpreadsheetApp.getUi()
   ui.createMenu(packageName)
-    .addItem('Copy Down', 'copyFormulasDown')
+    .addItem('Replace All', 'copyAndReplaceAll')
     .addToUi()
 }
 
@@ -25,7 +25,7 @@ function rangeAllCellsHaveFormulas(range) {
 /**
  * Copies formulas from a single row of cells down until the last row
  */
-function copyFormulasDown() {
+function copyAndReplaceAll() {
   const currentRange = SpreadsheetApp.getActiveRange()
 
   if (currentRange.getNumRows() > 1) {
