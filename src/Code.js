@@ -12,7 +12,7 @@ function isBlank(value) {
 }
 
 /**
- * Checks all cells in a range have formulas
+ * Checks whether all cells in a range have formulas
  * 
  * @param {Range} range
  * @return boolean
