@@ -117,28 +117,12 @@ function rangeClear(range) {
 function copyAndAppend() {
   const sheet = SpreadsheetApp.getActiveSheet()
   const selection = sheet.getActiveRange()
-
-  if (selection.getNumRows() > 1) {
-    throw new Error(`${packageName} doesn't work on multiple rows!`)
-  }
-
   const selectionRow = selection.getRow()
   const selectionColumn = selection.getColumn()
-
-  const rangesToCopy = rangeMapFormulas(selection, formula => formula !== "")
   const rowEnd = sheet.getLastRow()
   const rowStart = rangeGetLastRow(sheet.getRange(selectionRow, selectionColumn, rowEnd)) + 1
   const numRows = rowEnd - rowStart + 1
-
-  for (let i = 0; i < rangesToCopy.length; i++) {
-    const rangeToCopy = rangesToCopy[i]
-    const column = rangeToCopy.getColumn()
-    const rangeToPasteFormulas = sheet.getRange(rowStart, column, numRows)
-    rangeToCopy.copyTo(rangeToPasteFormulas)
-  }
-
-  const rangeToClear = sheet.getRange(rowStart, selectionColumn, numRows, selection.getNumColumns())
-  rangeClear(rangeToClear)
+  applyFormulasDownard_(selection, rowStart, numRows)
 }
 
 /**
@@ -147,18 +131,28 @@ function copyAndAppend() {
 function copyAndReplaceAll() {
   const sheet = SpreadsheetApp.getActiveSheet()
   const selection = sheet.getActiveRange()
-
-  if (selection.getNumRows() > 1) {
-    throw new Error(`${packageName} doesn't work on multiple rows!`)
-  }
-
-  const selectionRow = selection.getRow()
-  const selectionColumn = selection.getColumn()
-
-  const rangesToCopy = rangeMapFormulas(selection, formula => formula !== "")
   const rowEnd = sheet.getLastRow()
   const rowStart = selection.getRow() + 1
   const numRows = rowEnd - rowStart + 1
+  applyFormulasDownard_(selection, rowStart, numRows)
+}
+
+/**
+ * Applies formulas from a row of cells downward, then clears the formulas, font style and font color
+ * 
+ * @param {*} range The range that contains the formulas to copy
+ * @param {*} rowStart The row number to start copying the formulas to
+ * @param {*} numRows The number of rows to copy the formulas to
+ */
+function applyFormulasDownard_(range, rowStart, numRows) {
+  const sheet = range.getSheet()
+
+  if (range.getNumRows() > 1) {
+    throw new Error(`${packageName} doesn't work on multiple rows!`)
+  }
+
+  const rangeColumn = range.getColumn()
+  const rangesToCopy = rangeMapFormulas(range, formula => formula !== "")
 
   for (let i = 0; i < rangesToCopy.length; i++) {
     const rangeToCopy = rangesToCopy[i]
@@ -167,6 +161,6 @@ function copyAndReplaceAll() {
     rangeToCopy.copyTo(rangeToPasteFormulas)
   }
 
-  const rangeToClear = sheet.getRange(rowStart, selectionColumn, numRows, selection.getNumColumns())
+  const rangeToClear = sheet.getRange(rowStart, rangeColumn, numRows, range.getNumColumns())
   rangeClear(rangeToClear)
 }
